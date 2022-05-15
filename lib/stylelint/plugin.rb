@@ -1,34 +1,121 @@
 # frozen_string_literal: true
 
+require "mkmf"
+require "json"
+
 module Danger
-  # This is your plugin class. Any attributes or methods you expose here will
-  # be available from within your Dangerfile.
+  # Lint javascript files using [stylelint](http://stylelint.io/).
+  # Results are send as inline comment.
   #
-  # To be published on the Danger plugins site, you will need to have
-  # the public interface documented. Danger uses [YARD](http://yardoc.org/)
-  # for generating documentation from your plugin source, and you can verify
-  # by running `danger plugins lint` or `bundle exec rake spec`.
+  # @example Run stylelint with changed files only
   #
-  # You should replace these comments with a public description of your library.
+  #          stylelint.filtering = true
+  #          stylelint.lint
   #
-  # @example Ensure people are well warned about merging on Mondays
-  #
-  #          my_plugin.warn_on_mondays
-  #
-  # @see  Rossukhon Leagmongkol/danger-stylelint
-  # @tags monday, weekends, time, rattata
+  # @see  nimblehq/danger-stylelint
+  # @tags lint, stylelint, css, scss, sass
   #
   class DangerStylelint < Plugin
-    # An attribute that you can read/write from your Dangerfile
-    #
-    # @return   [Array<String>]
-    attr_accessor :my_attribute
+    DEFAULT_BIN_PATH = "./node_modules/.bin/stylelint"
 
-    # A method that you can call from your Dangerfile
-    # @return   [Array<String>]
+    # An path to stylelint's config file
+    # @return [String]
+    attr_accessor :config_file
+
+    # An path to stylelint's ignore file
+    # @return [String]
+    attr_accessor :ignore_file
+
+    # Enable filtering
+    # Only show messages within changed files.
+    # @return [Boolean]
+    attr_accessor :filtering
+
+    # A path of stylelint's bin
+    attr_writer :bin_path
+
+    def bin_path
+      @bin_path ||= DEFAULT_BIN_PATH
+    end
+
+    # Specify extensions of target file
+    # Default is [".css, .scss, .sass"]
+    # @return [Array]
+    attr_writer :target_extensions
+
+    def target_extensions
+      @target_extensions ||= %w(.css .scss .sass)
+    end
+
+    # Lints css files.
+    # Generates `errors` and `warnings` according to stylelint's config.
     #
-    def warn_on_mondays
-      warn "Trying to merge code on a Monday" if Date.today.wday == 1
+    # @return  [void]
+    #
+    def lint
+      lint_results
+        .reject { |result| result.nil? || result["warnings"].length.zero? }
+        .map { |result| send_comment result }
+    end
+
+    private
+
+    # Get stylelint bin path
+    #
+    # return [String]
+    def stylelint_path
+      File.exist?(bin_path) ? bin_path : find_executable("stylelint")
+    end
+
+    # Get all lintable files
+    #
+    # return [String]
+    def all_lintable_files
+      "**/{#{target_extensions.join(',')}}"
+    end
+
+    # Get lint result regards the filtering option
+    #
+    # return [Hash]
+    def lint_results
+      bin = stylelint_path
+      raise "stylelint is not installed" unless bin
+
+      return run_lint(bin, all_lintable_files) unless filtering
+
+      ((git.modified_files - git.deleted_files - git.renamed_files.map { |r| r[:before] }) + git.added_files + git.renamed_files.map { |r| r[:after] })
+        .select { |f| target_extensions.include?(File.extname(f)) }
+        .map { |f| f.gsub("#{Dir.pwd}/", "") }
+        .map { |f| run_lint(bin, f).first }
+    end
+
+    # Run stylelint against a single file.
+    #
+    # @param   [String] bin
+    #          The binary path of stylelint
+    #
+    # @param   [String] file
+    #          File to be linted
+    #
+    # return [Hash]
+    def run_lint(bin, file)
+      command = "#{bin} -f json"
+      command << " --config #{config_file}" if config_file
+      command << " --ignore-path #{ignore_file}" if ignore_file
+      result = "#{command} #{file}"
+      JSON.parse(result)
+    end
+
+    # Send comment with danger's warn or fail method.
+    #
+    # @return [void]
+    def send_comment(result)
+      dir = "#{Dir.pwd}/"
+      result["warnings"].each do |warning|
+        filename = result["source"].gsub(dir, "")
+        method = warning["severity"] == "error" ? "fail" : "warn"
+        send(method, warning["text"], file: filename, line: warning["line"])
+      end
     end
   end
 end
