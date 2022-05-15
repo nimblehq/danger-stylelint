@@ -12,35 +12,46 @@ module Danger
     # You should test your custom attributes and methods here
     #
     describe "with Dangerfile" do
+      let(:stylelint) { testing_dangerfile.stylelint }
+
       before do
-        @dangerfile = testing_dangerfile
-        @my_plugin = @dangerfile.stylelint
-
-        # mock the PR data
-        # you can then use this, eg. github.pr_author, later in the spec
-        json = File.read("#{File.dirname(__FILE__)}/support/fixtures/github_pr.json") # example json: `curl https://api.github.com/repos/danger/danger-plugin-template/pulls/18 > github_pr.json`
-        allow(@my_plugin.github).to receive(:pr_json).and_return(json)
+        allow(stylelint.git).to receive(:deleted_files).and_return([])
+        allow(stylelint.git).to receive(:added_files).and_return([])
+        allow(stylelint.git).to receive(:modified_files).and_return([])
+        allow(stylelint.git).to receive(:renamed_files).and_return([])
+        stub_const("Danger::DangerStylelint::DEFAULT_BIN_PATH", "spec/fixtures/stylelint.config.js")
       end
 
-      # Some examples for writing tests
-      # You should replace these with your own.
+      it "does not make an empty message" do
+        allow(stylelint).to receive(:lint).and_return("[]")
 
-      it "Warns on a monday" do
-        monday_date = Date.parse("2016-07-11")
-        allow(Date).to receive(:today).and_return monday_date
-
-        @my_plugin.warn_on_mondays
-
-        expect(@dangerfile.status_report[:warnings]).to eq(["Trying to merge code on a Monday"])
+        expect(stylelint.status_report[:errors].first).to be_nil
+        expect(stylelint.status_report[:warnings].first).to be_nil
+        expect(stylelint.status_report[:markdowns].first).to be_nil
       end
 
-      it "Does nothing on a tuesday" do
-        monday_date = Date.parse("2016-07-12")
-        allow(Date).to receive(:today).and_return monday_date
+      it "fails if stylelint not installed" do
+        allow(stylelint).to receive(:stylelint_path).and_return(nil)
 
-        @my_plugin.warn_on_mondays
+        expect { stylelint.lint }.to raise_error("stylelint is not installed")
+      end
 
-        expect(@dangerfile.status_report[:warnings]).to eq([])
+      describe "#lint" do
+        let(:error_result) { JSON.parse(File.read("spec/fixtures/error.json")) }
+
+        it "lints only changed files when filtering enabled" do
+          allow(stylelint).to receive(:run_lint)
+            .with(anything, /error.scss/).and_return(error_result)
+          allow(stylelint.git).to receive(:modified_files)
+            .and_return(["spec/fixtures/error.scss"])
+
+          stylelint.filtering = true
+          stylelint.lint
+          error = stylelint.status_report[:errors].first
+
+          expect(error).to eq("Expected a trailing semicolon (declaration-block-trailing-semicolon)")
+          expect(stylelint.status_report[:warnings].length).to be(0)
+        end
       end
     end
   end
