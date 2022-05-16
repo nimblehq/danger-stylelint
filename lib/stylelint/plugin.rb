@@ -71,7 +71,7 @@ module Danger
     #
     # return [String]
     def all_lintable_files
-      "**/{#{target_extensions.join(',')}}"
+      "**/*{#{target_extensions.join(',')}}"
     end
 
     # Get lint result regards the filtering option
@@ -102,7 +102,7 @@ module Danger
       command = "#{bin} -f json"
       command << " --config #{config_file}" if config_file
       command << " --ignore-path #{ignore_file}" if ignore_file
-      result = "#{command} #{file}"
+      result = `#{command} "#{file}"`
       JSON.parse(result)
     end
 
