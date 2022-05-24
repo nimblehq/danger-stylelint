@@ -22,16 +22,13 @@ module Danger
     # @return [String]
     attr_accessor :config_file
 
-    # An path to stylelint's ignore file
-    # @return [String]
-    attr_accessor :ignore_file
-
     # Enable filtering
     # Only show messages within changed files.
     # @return [Boolean]
     attr_accessor :filtering
 
     # A path of stylelint's bin
+    # @return [String]
     attr_writer :bin_path
 
     def bin_path
@@ -101,7 +98,6 @@ module Danger
     def run_lint(bin, file)
       command = "#{bin} -f json"
       command << " --config #{config_file}" if config_file
-      command << " --ignore-path #{ignore_file}" if ignore_file
       result = `#{command} "#{file}"`
       JSON.parse(result)
     end
