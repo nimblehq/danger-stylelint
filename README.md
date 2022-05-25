@@ -1,15 +1,44 @@
-# danger-stylelint
+# Danger Stylelint
 
-A description of danger-stylelint.
+This is a Danger Plugin for Ruby or Ruby on Rails projects to warn CSS issues. The checks are performed using [Stylelint](https://stylelint.io/)
+
+## Prerequisites
+
+To use this plugin, your project must have successfully setup [Danger](https://danger.systems/guides/getting_started.html)
+
+You would also need to install `stylelint` into your project
+
+    $ npm install -D stylelint
 
 ## Installation
 
+Simply run the following in your project.
+
     $ gem install danger-stylelint
+
 
 ## Usage
 
-    Methods and attributes from this plugin are available in
-    your `Dangerfile` under the `stylelint` namespace.
+To use the extension, add the following to your Dangerfile
+
+```ruby
+stylelint.lint
+```
+
+### Options
+
+| Options               	| Required 	| Default Value                 	| Description                                	|
+|-----------------------	|----------	|-------------------------------	|--------------------------------------------	|
+| stylelint.config_file 	| No       	| nil                           	| Path to a Stylelint configuration file.    	|
+| stylelint.filtering   	| No       	| false                         	| Comment only on changed lines              	|
+| stylelint.bin_path    	| No       	| ./node_modules/.bin/stylelint 	| Path to the node installation of Stylelint 	|
+
+To use an option, add it before running stylelint
+
+```ruby
+stylelint.config_file = "./.stylelintrc"
+stylelint.lint
+```
 
 ## Development
 
