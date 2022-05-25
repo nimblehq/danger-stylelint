@@ -31,7 +31,7 @@ module Danger
       end
 
       it "fails if stylelint not installed" do
-        allow(stylelint).to receive(:stylelint_path).and_return(nil)
+        allow(stylelint).to receive(:bin_path).and_return("")
 
         expect { stylelint.lint }.to raise_error("stylelint is not installed")
       end
@@ -39,13 +39,13 @@ module Danger
       describe "#lint" do
         let(:error_result) { JSON.parse(File.read("spec/fixtures/error.json")) }
 
-        it "lints only changed files when filtering enabled" do
+        it "lints only changed files when changes_only enabled" do
           allow(stylelint).to receive(:run_lint)
             .with(anything, /error.scss/).and_return(error_result)
           allow(stylelint.git).to receive(:modified_files)
             .and_return(["spec/fixtures/error.scss"])
 
-          stylelint.filtering = true
+          stylelint.changes_only = true
           stylelint.lint
           error = stylelint.status_report[:errors].first
 

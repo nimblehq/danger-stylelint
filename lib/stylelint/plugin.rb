@@ -4,12 +4,12 @@ require "mkmf"
 require "json"
 
 module Danger
-  # Lint javascript files using [stylelint](http://stylelint.io/).
+  # Lint stylesheets using [stylelint](http://stylelint.io/).
   # Results are send as inline comment.
   #
   # @example Run stylelint with changed files only
   #
-  #          stylelint.filtering = true
+  #          stylelint.changes_only = true
   #          stylelint.lint
   #
   # @see  nimblehq/danger-stylelint
@@ -22,10 +22,10 @@ module Danger
     # @return [String]
     attr_accessor :config_file
 
-    # Enable filtering
+    # Enable changes_only
     # Only show messages within changed files.
     # @return [Boolean]
-    attr_accessor :filtering
+    attr_accessor :changes_only
 
     # A path of stylelint's bin
     # @return [String]
@@ -61,7 +61,9 @@ module Danger
     #
     # return [String]
     def stylelint_path
-      File.exist?(bin_path) ? bin_path : find_executable("stylelint")
+      raise "stylelint is not installed" unless File.exist?(bin_path)
+
+      bin_path
     end
 
     # Get all lintable files
@@ -71,22 +73,26 @@ module Danger
       "**/*{#{target_extensions.join(',')}}"
     end
 
-    # Get lint result regards the filtering option
+    # Get lint result with respect to the changes_only option
     #
     # return [Hash]
     def lint_results
       bin = stylelint_path
-      raise "stylelint is not installed" unless bin
+      return run_lint(bin, all_lintable_files) unless changes_only
 
-      return run_lint(bin, all_lintable_files) unless filtering
-
-      ((git.modified_files - git.deleted_files - git.renamed_files.map { |r| r[:before] }) + git.added_files + git.renamed_files.map { |r| r[:after] })
-        .select { |f| target_extensions.include?(File.extname(f)) }
+      changed_files.select { |f| target_extensions.include?(File.extname(f)) }
         .map { |f| f.gsub("#{Dir.pwd}/", "") }
         .map { |f| run_lint(bin, f).first }
     end
 
-    # Run stylelint against a single file.
+    # Get all the changed files
+    #
+    # return [Array]
+    def changed_files
+      ((git.modified_files - git.deleted_files - git.renamed_files.map { |r| r[:before] }) + git.added_files + git.renamed_files.map { |r| r[:after] })
+    end
+
+    # Run stylelint against file(s).
     #
     # @param   [String] bin
     #          The binary path of stylelint
@@ -107,6 +113,7 @@ module Danger
     # @return [void]
     def send_comment(result)
       dir = "#{Dir.pwd}/"
+
       result["warnings"].each do |warning|
         filename = result["source"].gsub(dir, "")
         method = warning["severity"] == "error" ? "fail" : "warn"
