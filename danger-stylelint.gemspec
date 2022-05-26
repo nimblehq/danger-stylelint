@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["rose.roko@gmail.com"]
   spec.description   = "A short description of danger-stylelint."
   spec.summary       = "A longer description of danger-stylelint."
-  spec.homepage      = "https://github.com/Rossukhon Leagmongkol/danger-stylelint"
+  spec.homepage      = "https://github.com/nimblehq/danger-stylelint"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
