@@ -30,7 +30,7 @@ stylelint.lint
 | Options               	| Required 	| Default Value                 	| Description                                	|
 |-----------------------	|----------	|-------------------------------	|--------------------------------------------	|
 | stylelint.config_file 	| No       	| nil                           	| Path to a Stylelint configuration file.    	|
-| stylelint.filtering   	| No       	| false                         	| Comment only on changed lines              	|
+| stylelint.changes_only   	| No       	| false                         	| Comment only on changed lines              	|
 | stylelint.bin_path    	| No       	| ./node_modules/.bin/stylelint 	| Path to the node installation of Stylelint 	|
 
 To use an option, add it before running stylelint
