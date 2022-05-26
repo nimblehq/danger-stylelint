@@ -7,10 +7,10 @@ require "stylelint/gem_version"
 Gem::Specification.new do |spec|
   spec.name          = "danger-stylelint"
   spec.version       = Stylelint::VERSION
-  spec.authors       = ["Rossukhon Leagmongkol"]
-  spec.email         = ["rose.roko@gmail.com"]
-  spec.description   = "A short description of danger-stylelint."
-  spec.summary       = "A longer description of danger-stylelint."
+  spec.authors       = ["Nimble"]
+  spec.email         = ["dev@nimblehq.co"]
+  spec.description   = "Report Stylelint issues to PRs"
+  spec.summary       = "A Danger plugin for Ruby or Ruby on Rails projects to warn CSS issues"
   spec.homepage      = "https://github.com/nimblehq/danger-stylelint"
   spec.license       = "MIT"
 
