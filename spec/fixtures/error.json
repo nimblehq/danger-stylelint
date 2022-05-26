@@ -1,0 +1,53 @@
+[
+  {
+    "source": "danger-stylelint/spec/fixtures/error.scss",
+    "deprecations": [],
+    "invalidOptionWarnings": [],
+    "parseErrors": [],
+    "errored": true,
+    "warnings": [
+      {
+        "line": 7,
+        "column": 34,
+        "rule": "declaration-block-trailing-semicolon",
+        "severity": "error",
+        "text": "Expected a trailing semicolon (declaration-block-trailing-semicolon)"
+      },
+      {
+        "line": 11,
+        "column": 35,
+        "rule": "declaration-block-trailing-semicolon",
+        "severity": "error",
+        "text": "Expected a trailing semicolon (declaration-block-trailing-semicolon)"
+      },
+      {
+        "line": 17,
+        "column": 35,
+        "rule": "declaration-block-trailing-semicolon",
+        "severity": "error",
+        "text": "Expected a trailing semicolon (declaration-block-trailing-semicolon)"
+      },
+      {
+        "line": 1,
+        "column": 1,
+        "rule": "selector-class-pattern",
+        "severity": "error",
+        "text": "Selector should be written in lowercase with hyphens (selector-class-pattern)"
+      },
+      {
+        "line": 16,
+        "column": 5,
+        "rule": "selector-max-compound-selectors",
+        "severity": "error",
+        "text": "Expected \".slickDots :global li.slick-active button::before\" to have no more than 3 compound selectors (selector-max-compound-selectors)"
+      },
+      {
+        "line": 15,
+        "column": 22,
+        "rule": "selector-no-qualifying-type",
+        "severity": "error",
+        "text": "Unexpected qualifying type selector (selector-no-qualifying-type)"
+      }
+    ]
+  }
+]
