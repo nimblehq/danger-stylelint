@@ -1,0 +1,10 @@
+[
+  {
+    "source": "danger-stylelint/spec/fixtures/valid.scss",
+    "deprecations": [],
+    "invalidOptionWarnings": [],
+    "parseErrors": [],
+    "errored": false,
+    "warnings": []
+  }
+]

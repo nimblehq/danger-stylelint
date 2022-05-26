@@ -73,6 +73,13 @@ module Danger
       "**/*{#{target_extensions.join(',')}}"
     end
 
+    # Get all the changed files
+    #
+    # return [Array]
+    def all_changed_files
+      ((git.modified_files - git.deleted_files - git.renamed_files.map { |r| r[:before] }) + git.added_files + git.renamed_files.map { |r| r[:after] })
+    end
+
     # Get lint result with respect to the changes_only option
     #
     # return [Hash]
@@ -80,16 +87,9 @@ module Danger
       bin = stylelint_path
       return run_lint(bin, all_lintable_files) unless changes_only
 
-      changed_files.select { |f| target_extensions.include?(File.extname(f)) }
+      all_changed_files.select { |f| target_extensions.include?(File.extname(f)) }
         .map { |f| f.gsub("#{Dir.pwd}/", "") }
         .map { |f| run_lint(bin, f).first }
-    end
-
-    # Get all the changed files
-    #
-    # return [Array]
-    def changed_files
-      ((git.modified_files - git.deleted_files - git.renamed_files.map { |r| r[:before] }) + git.added_files + git.renamed_files.map { |r| r[:after] })
     end
 
     # Run stylelint against file(s).
