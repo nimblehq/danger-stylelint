@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Nimble"]
   spec.email         = ["dev@nimblehq.co"]
   spec.description   = "Report Stylelint issues to PRs"
-  spec.summary       = "A Danger plugin for Ruby or Ruby on Rails projects to warn CSS issues"
+  spec.summary       = "A Danger plugin for Ruby or Ruby on Rails projects to warn Stylelint issues"
   spec.homepage      = "https://github.com/nimblehq/danger-stylelint"
   spec.license       = "MIT"
 
